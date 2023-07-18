@@ -1,0 +1,9 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleasePlanAdmission
+metadata:
+  name: fbc-release
+  namespace: managed-release-team-tenant
+spec:
+  application: fbc-example
+  origin: dev-release-team-tenant
+  releaseStrategy: fbc-strategy
