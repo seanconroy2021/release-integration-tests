@@ -1,8 +1,0 @@
-apiVersion: appstudio.redhat.com/v1alpha1
-kind: Release
-metadata:
-  name: manual-fbc-release
-  namespace: dev-release-team-tenant
-spec:
-  snapshot: fbc-example-2ck68
-  releasePlan: manual-fbc-release
