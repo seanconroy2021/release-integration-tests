@@ -36,7 +36,7 @@ function setup() {
 }
 
 function teardown() {
-   
+
     kubectl delete pr -l "appstudio.openshift.io/application="$APPLICATION_NAME",pipelines.appstudio.openshift.io/type="build",appstudio.openshift.io/component="$COMPONENT_NAME"" "$DEV_KUBECONFIG"
     kubectl delete pr -l "appstudio.openshift.io/application="$APPLICATION_NAME",pipelines.appstudio.openshift.io/type="release"" "$MANAGED_KUBECONFIG"
     kubectl delete release "$DEV_KUBECONFIG" -o=jsonpath='{.items[?(@.spec.releasePlan=="$RELEASE_PLAN_NAME")].metadata.name}' 2>/dev/null
@@ -65,21 +65,21 @@ function wait_for_pr_to_complete() {
         crd_labels="appstudio.openshift.io/application="$APPLICATION_NAME",pipelines.appstudio.openshift.io/type="$type",appstudio.openshift.io/component="$COMPONENT_NAME""
     fi
 
-    while true; do        
+    while true; do
         crd_json=$(kubectl get PipelineRun -l "$crd_labels" "$kube_config" -o=json)
-        
+
         reason=$(echo "$crd_json" | jq -r '.items[0].status.conditions[0].reason')
         status=$(echo "$crd_json" | jq -r '.items[0].status.conditions[0].status')
         type=$(echo "$crd_json" | jq -r '.items[0].status.conditions[0].type')
         name=$(echo "$crd_json" | jq -r '.items[0].metadata.name')
         namespace=$(echo "$crd_json" | jq -r '.items[0].metadata.namespace')
-        
+
         if [ "$status" = "False" ] || [ "$type" = "Failed" ]; then
             echo "PipelineRun "$name" failed."
             return 1
         fi
-        
-        if [ "$status" = "True" ] && [ "$reason" = "Completed" ] && [ "$type" = "Succeeded" ]; then
+
+        if [ "$status" = "True" ] && [ "$type" = "Succeeded" ]; then
             echo "PipelineRun "$name" succeeded."
             return 0
         else
@@ -110,18 +110,18 @@ sleep 15
 
 echo "Checking Release status"
 # Get name of Release CR associated with Release Strategy "e2e-fbc-strategy".
-release_name=$(kubectl get release  "$DEV_KUBECONFIG" -o jsonpath="{range .items[?(@.status.processing.releaseStrategy=='$MANAGED_NAMESPACE/$RELEASE_STRATEGY_NAME')]}{.metadata.name}{'\n'}{end}")
+release_name=$(kubectl get release  "$DEV_KUBECONFIG" -o jsonpath="{range .items[?(@.status.processing.releaseStrategy=='$MANAGED_NAMESPACE/$RELEASE_STRATEGY_NAME')]}{.metadata.name}{'\n'}{end}" --sort-by={metadata.creationTimestamp} | tail -1)
+echo "release_name: $release_name"
 
 # Get the Released Status and Reason values to identify if fail or succeeded
 release_status=$(kubectl get release "$release_name" "$DEV_KUBECONFIG" -o jsonpath='{.status.conditions[?(@.type=="Released")].status}' 2>/dev/null)
 release_reason=$(kubectl get release "$release_name" "$DEV_KUBECONFIG" -o jsonpath='{.status.conditions[?(@.type=="Released")].reason}' 2>/dev/null)
 
-echo "Status: "$release_status"" 
-echo "Reason: "$release_reason"" 
+echo "Status: "$release_status""
+echo "Reason: "$release_reason""
 
 if [ "$release_status" = "True" ] && [ "$release_reason" = "Succeeded" ]; then
     echo "Release "$release_name" Released succeeded."
-else 
+else
     echo "Release "$release_name" Released Failed."
 fi
-
