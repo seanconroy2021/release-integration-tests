@@ -16,8 +16,7 @@ RELEASE_STRATEGY_NAME="e2e-fbc-strategy"
 TIMEOUT_SECONDS=600
 
 function setup() {
-    
-    
+
     echo "Creating Application"
     kubectl apply -f release-resources/application.yaml "$DEV_KUBECONFIG"
 
