@@ -1,0 +1,26 @@
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleaseStrategy
+metadata:
+  name: file-updates-test-push-rs
+  namespace: managed-release-team-tenant
+spec:
+  pipeline: push-to-external-registry
+  bundle: quay.io/scoheb/pipeline-push-to-external-registry:main
+  policy: file-updates-test-policy
+  params:
+    - name: extraConfigGitUrl
+      value: https://github.com/scoheb/strategy-configs.git
+    - name: extraConfigPath
+      value: file-updates-test.yaml
+    - name: extraConfigGitRevision
+      value: main
+    - name: pyxisServerType
+      value: stage
+    - name: pyxisSecret
+      value: pyxis
+    - name: tag
+      value: latest
+    - name: addGitShaTag
+      value: "true"
+  serviceAccount: release-service-account
