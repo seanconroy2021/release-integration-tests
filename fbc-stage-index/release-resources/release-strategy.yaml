@@ -1,0 +1,21 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleaseStrategy
+metadata:
+  name: e2e-fbc-stage-index-strategy
+  namespace: managed-release-team-tenant
+spec:
+  bundle: 'quay.io/hacbs-release/pipeline-fbc-release:main'
+  params:
+    - name: fromIndex
+      value: 'registry-proxy.engineering.redhat.com/rh-osbs/iib-pub-pending:v4.13'
+    - name: targetIndex
+      value: ''
+    - name: binaryImage
+      value: 'registry.redhat.io/openshift4/ose-operator-registry:v4.12'
+    - name: requestUpdateTimeout
+      value: '1000'
+    - name: buildTimeoutSeconds
+      value: '1000'
+  pipeline: fbc-release
+  policy: e2e-fbc-stage-index-policy
+  serviceAccount: release-service-account
