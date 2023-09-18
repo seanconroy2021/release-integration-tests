@@ -2,16 +2,36 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-DEV_KUBECONFIG="--kubeconfig=$SCRIPTDIR/../kubeconfig/stage_dev_release_kubelogin"
-MANAGED_KUBECONFIG="--kubeconfig=$SCRIPTDIR/../kubeconfig/stage_managed_release_kubelogin"
-
-MANAGED_NAMESPACE="managed-release-team-tenant"
 APPLICATION_NAME="fileupdatestest"
 COMPONENT_NAME="fileupdatestest-component"
 RELEASE_PLAN_NAME="file-updates-test-rp"
 RELEASE_PLAN_ADMISSION_NAME="file-updates-test-rpa"
 RELEASE_STRATEGY_NAME="file-updates-test-push-rs"
 TIMEOUT_SECONDS=600
+
+DEV_WORKSPACE="dev-release-team"
+MANAGED_WORKSPACE="managed-release-team"
+TOOLCHAIN_API_URL=https://api-toolchain-host-operator.apps.stone-stg-host.qc0p.p1.openshiftapps.com/workspaces
+
+DEV_WORKSPACE_TENANT=${DEV_WORKSPACE}-tenant
+MANAGED_WORKSPACE_TENANT=${MANAGED_WORKSPACE}-tenant
+
+DEV_KUBECONFIG=$(WORKSPACE=$DEV_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)
+MANAGED_KUBECONFIG=$(WORKSPACE=$MANAGED_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)
+
+if [ -z "${DEV_KUBECONFIG}" ]; then
+  echo "Error: could not access DEV_WORKSPACE: ${DEV_WORKSPACE}"
+  exit 1
+fi
+if [ -z "${MANAGED_KUBECONFIG}" ]; then
+  echo "Error: could not access MANAGED_WORKSPACE: ${MANAGED_WORKSPACE}"
+  exit 1
+fi
+
+DEV_KUBECONFIG_ARG="--kubeconfig=${DEV_KUBECONFIG}"
+MANAGED_KUBECONFIG_ARG="--kubeconfig=${MANAGED_KUBECONFIG}"
+
+trap "rm -f ${DEV_KUBECONFIG} ${MANAGED_KUBECONFIG}" EXIT
 
 print_help(){
     echo -e "$0 [ --skip-cleanup ]\n"
@@ -21,36 +41,36 @@ print_help(){
 function setup() {
 
     echo "Creating Application"
-    kubectl apply -f release-resources/application.yaml "$DEV_KUBECONFIG"
+    kubectl apply -f release-resources/application.yaml "${DEV_KUBECONFIG_ARG}"
 
     echo "Creating Component"
-    kubectl apply -f release-resources/component.yaml "$DEV_KUBECONFIG"
+    kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
     
     echo "Creating ReleaseStrategy"
-    kubectl apply -f release-resources/release-strategy-push.yaml "$MANAGED_KUBECONFIG"
+    kubectl apply -f release-resources/release-strategy.yaml "${MANAGED_KUBECONFIG_ARG}"
 
     echo "Creating ReleasePlan"
-    kubectl apply -f release-resources/release-plan.yaml "$DEV_KUBECONFIG"
+    kubectl apply -f release-resources/release-plan.yaml "${DEV_KUBECONFIG_ARG}"
 
     echo "Creating ReleasePlanAdmission"
-    kubectl apply -f release-resources/release-plan-admission.yaml "$MANAGED_KUBECONFIG"
+    kubectl apply -f release-resources/release-plan-admission.yaml "${MANAGED_KUBECONFIG_ARG}"
 
     echo "Creating EnterpriseContractPolicy"
-    kubectl apply -f release-resources/ec-policy.yaml "$MANAGED_KUBECONFIG"
+    kubectl apply -f release-resources/ec-policy.yaml "${MANAGED_KUBECONFIG_ARG}"
 
 }
 
 function teardown() {
 
-    kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=build,appstudio.openshift.io/component=$COMPONENT_NAME" "$DEV_KUBECONFIG"
-    kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=release" "$MANAGED_KUBECONFIG"
-    kubectl delete release "$DEV_KUBECONFIG" -o=jsonpath="{.items[?(@.spec.releasePlan==\"$RELEASE_PLAN_NAME\")].metadata.name}"
-    kubectl delete releaseplanadmission "$RELEASE_PLAN_ADMISSION_NAME" "$MANAGED_KUBECONFIG"
-    kubectl delete releasestrategy "$RELEASE_STRATEGY_NAME" "$MANAGED_KUBECONFIG"
+    kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=build,appstudio.openshift.io/component=$COMPONENT_NAME" "${DEV_KUBECONFIG_ARG}"
+    kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=release" "${MANAGED_KUBECONFIG_ARG}"
+    kubectl delete release "${DEV_KUBECONFIG_ARG}" -o=jsonpath="{.items[?(@.spec.releasePlan==\"$RELEASE_PLAN_NAME\")].metadata.name}"
+    kubectl delete releaseplanadmission "$RELEASE_PLAN_ADMISSION_NAME" "${MANAGED_KUBECONFIG_ARG}"
+    kubectl delete releasestrategy "$RELEASE_STRATEGY_NAME" "${MANAGED_KUBECONFIG_ARG}"
 
-    if kubectl get application "$APPLICATION_NAME"  "$DEV_KUBECONFIG" &> /dev/null; then
+    if kubectl get application "$APPLICATION_NAME"  "${DEV_KUBECONFIG_ARG}" &> /dev/null; then
         echo "Application $APPLICATION_NAME exists. Deleting..."
-        kubectl delete application "$APPLICATION_NAME" "$DEV_KUBECONFIG"
+        kubectl delete application "$APPLICATION_NAME" "${DEV_KUBECONFIG_ARG}"
     else
         echo "Application $APPLICATION_NAME does not exist."
     fi
@@ -63,10 +83,10 @@ function wait_for_pr_to_complete() {
     local start_time=$(date +%s)
 
     if [ "$type" = "release" ]; then
-        kube_config="$MANAGED_KUBECONFIG"
+        kube_config="${MANAGED_KUBECONFIG_ARG}"
         crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type"
     else
-        kube_config="$DEV_KUBECONFIG"
+        kube_config="${DEV_KUBECONFIG_ARG}"
         crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type,appstudio.openshift.io/component=$COMPONENT_NAME"
     fi
 
@@ -142,12 +162,12 @@ sleep 15
 
 echo "Checking Release status"
 # Get name of Release CR associated with Release Strategy "e2e-fbc-strategy".
-release_name=$(kubectl get release  "$DEV_KUBECONFIG" -o jsonpath="{range .items[?(@.status.processing.releaseStrategy=='$MANAGED_NAMESPACE/$RELEASE_STRATEGY_NAME')]}{.metadata.name}{'\n'}{end}" --sort-by={metadata.creationTimestamp} | tail -1)
+release_name=$(kubectl get release  "${DEV_KUBECONFIG_ARG}" -o jsonpath="{range .items[?(@.status.processing.releaseStrategy=='$MANAGED_WORKSPACE_TENANT/$RELEASE_STRATEGY_NAME')]}{.metadata.name}{'\n'}{end}" --sort-by={metadata.creationTimestamp} | tail -1)
 echo "release_name: $release_name"
 
 # Get the Released Status and Reason values to identify if fail or succeeded
-release_status=$(kubectl get release "$release_name" "$DEV_KUBECONFIG" -o jsonpath='{.status.conditions[?(@.type=="Released")].status}' 2>/dev/null)
-release_reason=$(kubectl get release "$release_name" "$DEV_KUBECONFIG" -o jsonpath='{.status.conditions[?(@.type=="Released")].reason}' 2>/dev/null)
+release_status=$(kubectl get release "$release_name" "${DEV_KUBECONFIG_ARG}" -o jsonpath='{.status.conditions[?(@.type=="Released")].status}' 2>/dev/null)
+release_reason=$(kubectl get release "$release_name" "${DEV_KUBECONFIG_ARG}" -o jsonpath='{.status.conditions[?(@.type=="Released")].reason}' 2>/dev/null)
 
 echo "Status: $release_status"
 echo "Reason: $release_reason"
