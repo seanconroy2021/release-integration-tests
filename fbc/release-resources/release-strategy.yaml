@@ -4,7 +4,7 @@ metadata:
   name: e2e-fbc-strategy
   namespace: managed-release-team-tenant
 spec:
-  bundle: 'quay.io/hacbs-release/pipeline-fbc-release:0.18'
+  bundle: 'quay.io/hacbs-release/pipeline-fbc-release:main'
   params:
     - name: fromIndex
       value: 'quay.io/scoheb/fbc-index-testing:latest'
