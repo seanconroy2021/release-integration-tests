@@ -5,9 +5,6 @@ metadata:
   name: file-updates-test-push-rs
   namespace: managed-release-team-tenant
 spec:
-  pipeline: push-to-external-registry
-  bundle: quay.io/scoheb/pipeline-push-to-external-registry:main
-  policy: file-updates-test-policy
   params:
     - name: extraConfigGitUrl
       value: https://github.com/scoheb/strategy-configs.git
@@ -23,4 +20,14 @@ spec:
       value: latest
     - name: addGitShaTag
       value: "true"
+  pipelineRef:
+    params:
+      - name: url
+        value: https://github.com/redhat-appstudio/release-service-catalog.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: pipelines/push-to-external-registry/push-to-external-registry.yaml
+    resolver: "git"
+  policy: file-updates-test-policy
   serviceAccount: release-service-account

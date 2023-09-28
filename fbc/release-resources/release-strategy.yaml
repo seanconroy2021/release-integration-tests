@@ -4,7 +4,6 @@ metadata:
   name: e2e-fbc-strategy
   namespace: managed-release-team-tenant
 spec:
-  bundle: 'quay.io/hacbs-release/pipeline-fbc-release:main'
   params:
     - name: fromIndex
       value: 'quay.io/scoheb/fbc-index-testing:latest'
@@ -16,6 +15,14 @@ spec:
       value: '420'
     - name: buildTimeoutSeconds
       value: '480'
-  pipeline: fbc-release
+  pipelineRef:
+    params:
+      - name: url
+        value: https://github.com/redhat-appstudio/release-service-catalog.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: pipelines/fbc-release/fbc-release.yaml
+    resolver: "git"
   policy: fbc-policy
   serviceAccount: release-service-account
