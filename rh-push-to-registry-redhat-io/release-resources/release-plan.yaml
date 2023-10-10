@@ -1,0 +1,11 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleasePlan
+metadata:
+  labels:
+    release.appstudio.openshift.io/auto-release: 'true'
+    release.appstudio.openshift.io/standing-attribution: 'true'
+  name: rh-push-to-registry-redhat-io-test-rp
+spec:
+  application: rh-push-to-registry-redhat-iotest
+  displayName: rh-push-to-registry-redhat-io-test-rp
+  target: managed-release-team-tenant
