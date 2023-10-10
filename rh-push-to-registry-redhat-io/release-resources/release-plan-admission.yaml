@@ -1,0 +1,11 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleasePlanAdmission
+metadata:
+  labels:
+    release.appstudio.openshift.io/auto-release: "true"
+  name: rh-push-to-registry-redhat-io-test-rpa
+  namespace: managed-release-team-tenant
+spec:
+  application: rh-push-to-registry-redhat-iotest
+  origin: dev-release-team-tenant
+  releaseStrategy: rh-push-to-registry-redhat-io-test-push-rs
