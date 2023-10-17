@@ -7,5 +7,4 @@ metadata:
   name: file-updates-test-rp
 spec:
   application: fileupdatestest
-  displayName: file-updates-test-rp
   target: managed-release-team-tenant

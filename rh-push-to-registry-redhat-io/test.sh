@@ -6,7 +6,6 @@ APPLICATION_NAME="rh-push-to-registry-redhat-iotest"
 COMPONENT_NAME="rh-push-to-registry-redhat-iotest-component"
 RELEASE_PLAN_NAME="rh-push-to-registry-redhat-io-test-rp"
 RELEASE_PLAN_ADMISSION_NAME="rh-push-to-registry-redhat-io-test-rpa"
-RELEASE_STRATEGY_NAME="rh-push-to-registry-redhat-io-test-push-rs"
 TIMEOUT_SECONDS=600
 
 DEV_WORKSPACE="dev-release-team"
@@ -46,9 +45,6 @@ function setup() {
     echo "Creating Component"
     kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
     
-    echo "Creating ReleaseStrategy"
-    kubectl apply -f release-resources/release-strategy.yaml "${MANAGED_KUBECONFIG_ARG}"
-
     echo "Creating ReleasePlan"
     kubectl apply -f release-resources/release-plan.yaml "${DEV_KUBECONFIG_ARG}"
 
@@ -66,7 +62,6 @@ function teardown() {
     kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=release" "${MANAGED_KUBECONFIG_ARG}"
     kubectl delete release "${DEV_KUBECONFIG_ARG}" -o=jsonpath="{.items[?(@.spec.releasePlan==\"$RELEASE_PLAN_NAME\")].metadata.name}"
     kubectl delete releaseplanadmission "$RELEASE_PLAN_ADMISSION_NAME" "${MANAGED_KUBECONFIG_ARG}"
-    kubectl delete releasestrategy "$RELEASE_STRATEGY_NAME" "${MANAGED_KUBECONFIG_ARG}"
 
     if kubectl get application "$APPLICATION_NAME"  "${DEV_KUBECONFIG_ARG}" &> /dev/null; then
         echo "Application $APPLICATION_NAME exists. Deleting..."
@@ -161,8 +156,8 @@ echo "Waiting for the Release to be updated"
 sleep 15
 
 echo "Checking Release status"
-# Get name of Release CR associated with Release Strategy "e2e-fbc-strategy".
-release_name=$(kubectl get release  "${DEV_KUBECONFIG_ARG}" -o jsonpath="{range .items[?(@.status.processing.releaseStrategy=='$MANAGED_WORKSPACE_TENANT/$RELEASE_STRATEGY_NAME')]}{.metadata.name}{'\n'}{end}" --sort-by={metadata.creationTimestamp} | tail -1)
+# Get name of Release CR associated with Release Plan "rh-push-to-registry-redhat-io-test-rp".
+release_name=$(kubectl get release  "${DEV_KUBECONFIG_ARG}" -o jsonpath="{range .items[?(@.spec.releasePlan=='$RELEASE_PLAN_NAME')]}{.metadata.name}{'\n'}{end}" --sort-by={metadata.creationTimestamp} | tail -1)
 echo "release_name: $release_name"
 
 # Get the Released Status and Reason values to identify if fail or succeeded
