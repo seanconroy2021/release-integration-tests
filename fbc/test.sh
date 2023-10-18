@@ -6,7 +6,6 @@ APPLICATION_NAME="e2e-fbc-application"
 COMPONENT_NAME="e2e-fbc-component"
 RELEASE_PLAN_NAME="e2e-fbc-releaseplan"
 RELEASE_PLAN_ADMISSION_NAME="e2e-fbc-releaseplanadmission"
-RELEASE_STRATEGY_NAME="e2e-fbc-strategy"
 TIMEOUT_SECONDS=600
 
 DEV_WORKSPACE="dev-release-team"
@@ -46,9 +45,6 @@ function setup() {
     echo "Creating Component"
     kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
     
-    echo "Creating ReleaseStrategy"
-    kubectl apply -f release-resources/release-strategy.yaml "${MANAGED_KUBECONFIG_ARG}"
-
     echo "Creating ReleasePlan"
     kubectl apply -f release-resources/release-plan.yaml "${DEV_KUBECONFIG_ARG}"
 
