@@ -66,7 +66,6 @@ function teardown() {
     kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=release" "${MANAGED_KUBECONFIG_ARG}"
     kubectl delete release "${DEV_KUBECONFIG_ARG}" -o=jsonpath="{.items[?(@.spec.releasePlan==\"$RELEASE_PLAN_NAME\")].metadata.name}"
     kubectl delete releaseplanadmission "$RELEASE_PLAN_ADMISSION_NAME" "${MANAGED_KUBECONFIG_ARG}"
-    kubectl delete releasestrategy "$RELEASE_STRATEGY_NAME" "${MANAGED_KUBECONFIG_ARG}"
 
     if kubectl get application "$APPLICATION_NAME"  "${DEV_KUBECONFIG_ARG}" &> /dev/null; then
         echo "Application $APPLICATION_NAME exists. Deleting..."

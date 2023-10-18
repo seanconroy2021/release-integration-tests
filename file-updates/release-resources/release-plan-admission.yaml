@@ -7,7 +7,7 @@ metadata:
   namespace: managed-release-team-tenant
 spec:
   application: fileupdatestest
-  extraData:
+  data:
     fileUpdates:
       - paths:
         - path: data/services/ocm/osd-fleet-manager/cicd/deploy.yaml
@@ -18,4 +18,3 @@ spec:
         upstream_repo: https://gitlab.cee.redhat.com/shebert/app-interface.git
         repo: https://gitlab.cee.redhat.com/hacbs-release-tests/app-interface.git
   origin: dev-release-team-tenant
-  releaseStrategy: file-updates-test-push-rs
