@@ -7,5 +7,4 @@ metadata:
   name: rh-push-to-registry-redhat-io-test-rp
 spec:
   application: rh-push-to-registry-redhat-iotest
-  displayName: rh-push-to-registry-redhat-io-test-rp
   target: managed-release-team-tenant

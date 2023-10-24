@@ -4,6 +4,24 @@ metadata:
   name: e2e-fbc-releaseplanadmission
   namespace: managed-release-team-tenant
 spec:
-  application: e2e-fbc-application
+  applications:
+    - e2e-fbc-application
   origin: dev-release-team-tenant
-  releaseStrategy: e2e-fbc-strategy
+  pipelineRef:
+    params:
+      - name: url
+        value: https://github.com/redhat-appstudio/release-service-catalog.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: pipelines/fbc-release/fbc-release.yaml
+    resolver: "git"
+  policy: fbc-policy
+  serviceAccount: release-service-account
+  data:
+    fbc:
+      fromIndex: 'quay.io/scoheb/fbc-index-testing:latest'
+      targetIndex: 'quay.io/scoheb/fbc-target-index-testing:latest'
+      binaryImage: 'registry.redhat.io/openshift4/ose-operator-registry:v4.12'
+      requestUpdateTimeout: 420
+      buildTimeoutSeconds: 480

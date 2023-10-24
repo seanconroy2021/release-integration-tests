@@ -6,6 +6,27 @@ metadata:
   name: rh-push-to-registry-redhat-io-test-rpa
   namespace: managed-release-team-tenant
 spec:
-  application: rh-push-to-registry-redhat-iotest
+  applications:
+    - rh-push-to-registry-redhat-iotest
   origin: dev-release-team-tenant
-  releaseStrategy: rh-push-to-registry-redhat-io-test-push-rs
+  pipelineRef:
+    params:
+      - name: url
+        value: https://github.com/redhat-appstudio/release-service-catalog.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: pipelines/rh-push-to-registry-redhat-io/rh-push-to-registry-redhat-io.yaml
+    resolver: "git"
+  policy: rh-push-to-registry-redhat-io-test-policy
+  serviceAccount: release-service-account
+  data:
+    pyxis:
+      server: stage
+      secret: pyxis
+    images:
+      addGitShaTag: true
+    mapping:
+      components:
+        - name: rh-push-to-registry-redhat-iotest-component
+          repository: quay.io/hacbs-release-tests/rh-push-to-registry-redhat-iotest-component

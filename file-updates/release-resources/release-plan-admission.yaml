@@ -6,8 +6,9 @@ metadata:
   name: file-updates-test-rpa
   namespace: managed-release-team-tenant
 spec:
-  application: fileupdatestest
-  extraData:
+  applications:
+    - fileupdatestest
+  data:
     fileUpdates:
       - paths:
         - path: data/services/ocm/osd-fleet-manager/cicd/deploy.yaml
@@ -17,5 +18,24 @@ spec:
         ref: master
         upstream_repo: https://gitlab.cee.redhat.com/shebert/app-interface.git
         repo: https://gitlab.cee.redhat.com/hacbs-release-tests/app-interface.git
+    pyxis:
+      server: stage
+      secret: pyxis
+    images:
+      addGitShaTag: true
+    mapping:
+      components:
+        - name: fileupdatestest-component
+          repository: quay.io/hacbs-release-tests/fileupdatestest-component
   origin: dev-release-team-tenant
-  releaseStrategy: file-updates-test-push-rs
+  pipelineRef:
+    params:
+      - name: url
+        value: https://github.com/redhat-appstudio/release-service-catalog.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: pipelines/push-to-external-registry/push-to-external-registry.yaml
+    resolver: "git"
+  policy: file-updates-test-policy
+  serviceAccount: release-service-account
