@@ -6,7 +6,7 @@ set -e -o pipefail
 PID=$$
 TEMP=/tmp/$PID
 
-function print_help() {
+print_help() {
     echo -e "$0\n\t -t|--testdir <test directory>\tTest directory to run
     \t -l|--local\t\t\tWeather to run test in local cluster
     \t -a|--address <cluster address>\tLocal cluster auth address
