@@ -7,10 +7,20 @@ PID=$$
 TEMP=/tmp/$PID
 
 function print_help() {
-    echo -e "$0\n\t -t|--test <test name>\t\tTest name to run
-    \t -l|--local\t\t\tWeather to run test locally
-    \t -a|--address <cluster address>\tCluster auth address
+    echo -e "$0\n\t -t|--testdir <test directory>\tTest directory to run
+    \t -l|--local\t\t\tWeather to run test in local cluster
+    \t -a|--address <cluster address>\tLocal cluster auth address
     \t -u|--username <username>\tAuth username"
+}
+
+runtest() {
+    testdir=$1
+    username=$2
+    echo -e "==== Running [ `echo $testdir |tr a-z A-Z` ] test ====\n"
+    cd $testdir
+    sh test.sh |while read line; do
+        logger -t "run/$testdir" -s $username "$line"
+    done
 }
 
 options=$(getopt -o lht:a:u: --long local,test:,address:,username:,help -- "$@")
@@ -23,13 +33,13 @@ fi
 
 while true; do
     case "$1" in
-        -t|--test)
+        -t|--testdir)
             shift
-            TEST_DIR=$1
+            TESTDIR=$1
             ;;
         -a|--address)
             shift
-            AUTH_HOST=$1
+            ADDRESS=$1
             ;;
         -l|--local)
             shift 
@@ -54,9 +64,9 @@ while true; do
     esac
 done
 
-if [ $TEST_DIR ]; then
-    if [ ! -d "$TEST_DIR" ]; then
-        echo "ERR: \`${TEST_DIR}\` test directory does not exist"
+if [ $TESTDIR ]; then
+    if [ ! -d "$TESTDIR" ]; then
+        echo "ERR: \`${TESTDIR}\` test directory does not exist"
         exit 1
     fi
 else
@@ -65,7 +75,7 @@ else
 fi
 
 if [ -n "$LOCAL" ]; then
-    if [ -z $AUTH_HOST ]; then
+    if [ -z "$ADDRESS" ]; then
         echo "ERR: -a|--address is required when --local is set"
         exit 1
     fi
@@ -82,13 +92,11 @@ if [ -n "$LOCAL" ]; then
     export DEV_KUBECONFIG MANAGED_KUBECONFIG
     touch $DEV_KUBECONFIG $MANAGED_KUBECONFIG
 
-    oc login $AUTH_HOST -u $USERNAME -p "${PASSWORD}"  --insecure-skip-tls-verify=true --kubeconfig $DEV_KUBECONFIG
+    oc login $ADDRESS -u $USERNAME -p "${PASSWORD}"  --insecure-skip-tls-verify=true --kubeconfig $DEV_KUBECONFIG
     oc project dev-release-team-tenant --kubeconfig $DEV_KUBECONFIG
     
-    oc login $AUTH_HOST -u $USERNAME -p "${PASSWORD}"  --insecure-skip-tls-verify=true --kubeconfig $MANAGED_KUBECONFIG
+    oc login $ADDRESS -u $USERNAME -p "${PASSWORD}"  --insecure-skip-tls-verify=true --kubeconfig $MANAGED_KUBECONFIG
     oc project managed-release-team-tenant --kubeconfig $MANAGED_KUBECONFIG
 fi
 
-echo -e "==== Running [ `echo $TEST_DIR |tr a-z A-Z` ] test ====\n"
-cd $TEST_DIR
-sh test.sh
+runtest $TESTDIR $USERNAME
