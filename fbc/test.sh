@@ -121,7 +121,7 @@ eval set -- "$OPTIONS"
 while true; do
     case "$1" in
         -sc|--skip-cleanup)
-            CLEANUP="true"
+            CLEANUP="false"
             ;;
         -h|--help)
             print_help
@@ -135,7 +135,7 @@ while true; do
     shift
 done
 
-if [ "${CLEANUP}" != "true" ]; then
+if [ "${CLEANUP}" == "true" ]; then
   trap teardown EXIT
 fi
 

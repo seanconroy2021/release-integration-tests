@@ -18,7 +18,7 @@ runtest() {
     username=$2
     echo -e "==== Running [ `echo $testdir |tr a-z A-Z` ] test ====\n"
     cd $testdir
-    sh test.sh |while read line; do
+    sh test.sh -sc |while read line; do
         logger -t "run/$testdir" -s $username "$line"
     done
 }
