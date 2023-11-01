@@ -13,7 +13,7 @@ spec:
         - github.com/enterprise-contract/ec-policies//policy/lib
         - github.com/enterprise-contract/ec-policies//policy/release
       data:
-        - github.com/enterprise-contract/ec-policies//data
+        - github.com/release-engineering/rhtap-ec-policy//data
   configuration:
     include:
       - '@slsa1'
