@@ -1,0 +1,78 @@
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Component
+metadata:
+  name: e2e-fbc-multiple-components-412
+  namespace: dev-release-team-tenant
+  annotations:
+    image.redhat.com/generate: 'true'
+    skip-initial-checks: 'false'
+spec:
+  application: e2e-fbc-application
+  componentName: e2e-fbc-multiple-components-412
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  source:
+    git:
+      url: 'https://github.com/theflockers/fbc-veneer-demo'
+      revision: composite
+      devfileUrl: >-
+        https://raw.githubusercontent.com/theflockers/fbc-veneer-demo/composite/4.12/devfile.yaml
+      dockerfileUrl: >-
+        https://raw.githubusercontent.com/theflockers/fbc-veneer-demo/composite/412.Dockerfile
+  targetPort: 50051
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Component
+metadata:
+  name: e2e-fbc-multiple-components-413
+  namespace: dev-release-team-tenant
+  annotations:
+    image.redhat.com/generate: 'true'
+    skip-initial-checks: 'false'
+spec:
+  application: e2e-fbc-application
+  componentName: e2e-fbc-multiple-components-413
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  source:
+    git:
+      url: 'https://github.com/theflockers/fbc-veneer-demo'
+      revision: composite
+      devfileUrl: >-
+        https://raw.githubusercontent.com/theflockers/fbc-veneer-demo/composite/4.13/devfile.yaml
+      dockerfileUrl: >-
+        https://raw.githubusercontent.com/theflockers/fbc-veneer-demo/composite/413.Dockerfile
+  targetPort: 50051
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Component
+metadata:
+  name: e2e-fbc-multiple-components-414
+  namespace: dev-release-team-tenant
+  annotations:
+    image.redhat.com/generate: 'true'
+    skip-initial-checks: 'false'
+spec:
+  application: e2e-fbc-application
+  componentName: e2e-fbc-multiple-components-414
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  source:
+    git:
+      url: 'https://github.com/theflockers/fbc-veneer-demo'
+      revision: composite
+      devfileUrl: >-
+        https://raw.githubusercontent.com/theflockers/fbc-veneer-demo/composite/4.14/devfile.yaml
+      dockerfileUrl: >-
+        https://raw.githubusercontent.com/theflockers/fbc-veneer-demo/composite/414.Dockerfile
+  targetPort: 50051

@@ -23,10 +23,10 @@ runtest() {
     done
 }
 
-options=$(getopt -o lht:a:u: --long local,test:,address:,username:,help -- "$@")
+options=$(getopt -o lht:a:p:u: --long local,test:,address:,username:,password:,help -- "$@")
 eval set -- "$options"
 
-if [[ $# < 2 ]]; then
+if (( $# < 2 )); then
     print_help
     exit 1
 fi
@@ -48,6 +48,10 @@ while true; do
         -u|--username)
             shift
             USERNAME=$1
+            ;;
+        -p|--password)
+            shift
+            PASSWORD=$1
             ;;
         -h|--help)
             shift
@@ -84,7 +88,7 @@ if [ -n "$LOCAL" ]; then
 
     # set Kubeconfig for dev and managed namespace:
     [ -z "$USERNAME" ] && read -p "Username: " USERNAME
-    read -p "Password: " -s PASSWORD
+    [ -z "$PASSWORD" ] && read -p "Password: " -s PASSWORD
 
     DEV_KUBECONFIG=${TEMP}-dev-kubeconfig
     MANAGED_KUBECONFIG=${TEMP}-managed-kubeconfig

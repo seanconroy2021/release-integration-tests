@@ -3,7 +3,8 @@
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 APPLICATION_NAME="e2e-fbc-application"
-COMPONENT_NAME="e2e-fbc-component"
+COMPONENT_NAME=("e2e-fbc-multiple-components-412","e2e-fbc-multiple-components-413","e2e-fbc-multiple-components-414")
+#COMPONENT_NAME="e2e-fbc-component"
 RELEASE_PLAN_NAME="e2e-fbc-releaseplan"
 RELEASE_PLAN_ADMISSION_NAME="e2e-fbc-releaseplanadmission"
 TIMEOUT_SECONDS=600
@@ -43,7 +44,8 @@ function setup() {
     kubectl apply -f release-resources/application.yaml "${DEV_KUBECONFIG_ARG}"
 
     echo "Creating Component"
-    kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
+    #kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
+    kubectl apply -f release-resources/multiple-components.yaml "${DEV_KUBECONFIG_ARG}"
     
     echo "Creating ReleasePlan"
     kubectl apply -f release-resources/release-plan.yaml "${DEV_KUBECONFIG_ARG}"
@@ -58,7 +60,9 @@ function setup() {
 
 function teardown() {
 
-    kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=build,appstudio.openshift.io/component=$COMPONENT_NAME" "${DEV_KUBECONFIG_ARG}"
+    for COMPONENT in ${#COMPONENT_NAME[@]}; do
+        kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=build,appstudio.openshift.io/component=$COMPONENT" "${DEV_KUBECONFIG_ARG}"
+    done
     kubectl delete pr -l "appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=release" "${MANAGED_KUBECONFIG_ARG}"
     kubectl delete release "${DEV_KUBECONFIG_ARG}" -o=jsonpath="{.items[?(@.spec.releasePlan==\"$RELEASE_PLAN_NAME\")].metadata.name}"
     kubectl delete releaseplanadmission "$RELEASE_PLAN_ADMISSION_NAME" "${MANAGED_KUBECONFIG_ARG}"
@@ -82,7 +86,9 @@ function wait_for_pr_to_complete() {
         crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type"
     else
         kube_config="${DEV_KUBECONFIG_ARG}"
-        crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type,appstudio.openshift.io/component=$COMPONENT_NAME"
+        for COMPONENT in ${#COMPONENT_NAME[@]}; do
+           crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type,appstudio.openshift.io/component=$COMPONENT"
+       done
     fi
 
     while true; do
@@ -136,7 +142,7 @@ while true; do
 done
 
 if [ "${CLEANUP}" == "true" ]; then
-  trap teardown EXIT
+  trap teardown EXIT INT
 fi
 
 echo "Cleaning up before setup"

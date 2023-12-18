@@ -12,7 +12,7 @@ spec:
       - name: url
         value: https://github.com/theflockers/release-service-catalog.git
       - name: revision
-        value: rhtaprel_360
+        value: rhtaprel_651
       - name: pathInRepo
         value: pipelines/fbc-release/fbc-release.yaml
     resolver: "git"
@@ -21,7 +21,11 @@ spec:
   data:
     fbc:
       fromIndex: 'quay.io/scoheb/fbc-index-testing:latest'
-      targetIndex: 'quay.io/scoheb/fbc-target-index-testing:latest'
+      targetIndex: 'quay.io/lmendes/sample-fbc-catalog:v4.12'
       binaryImage: 'registry.redhat.io/openshift4/ose-operator-registry:v4.12'
       requestUpdateTimeout: 420
       buildTimeoutSeconds: 480
+      publishingCredentials: lmendes-quayio-credentials
+    sign:
+      configMapName: hacbs-signing-pipeline-lmendes-config
+      request: hacbs-signing-pipeline
