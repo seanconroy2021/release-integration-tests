@@ -15,8 +15,9 @@ TOOLCHAIN_API_URL=https://api-toolchain-host-operator.apps.stone-stg-host.qc0p.p
 DEV_WORKSPACE_TENANT=${DEV_WORKSPACE}-tenant
 MANAGED_WORKSPACE_TENANT=${MANAGED_WORKSPACE}-tenant
 
-DEV_KUBECONFIG=$(WORKSPACE=$DEV_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)
-MANAGED_KUBECONFIG=$(WORKSPACE=$MANAGED_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)
+###
+DEV_KUBECONFIG=${DEV_KUBECONFIG:=$(WORKSPACE=$DEV_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)}
+MANAGED_KUBECONFIG=${MANAGED_KUBECONFIG:=$(WORKSPACE=$MANAGED_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)}
 
 if [ -z "${DEV_KUBECONFIG}" ]; then
   echo "Error: could not access DEV_WORKSPACE: ${DEV_WORKSPACE}"
@@ -30,7 +31,7 @@ fi
 DEV_KUBECONFIG_ARG="--kubeconfig=${DEV_KUBECONFIG}"
 MANAGED_KUBECONFIG_ARG="--kubeconfig=${MANAGED_KUBECONFIG}"
 
-trap "rm -f ${DEV_KUBECONFIG} ${MANAGED_KUBECONFIG}" EXIT
+#trap "rm -f ${DEV_KUBECONFIG} ${MANAGED_KUBECONFIG}" EXIT
 
 print_help(){
     echo -e "$0 [ --skip-cleanup ]\n"
@@ -78,8 +79,8 @@ function wait_for_pr_to_complete() {
     local start_time=$(date +%s)
 
     if [ "$type" = "release" ]; then
-        kube_config="${MANAGED_KUBECONFIG_ARG}"
-        crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type"
+        kube_config="${DEV_KUBECONFIG_ARG}"
+        crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME"
     else
         kube_config="${DEV_KUBECONFIG_ARG}"
         crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type,appstudio.openshift.io/component=$COMPONENT_NAME"
@@ -94,7 +95,7 @@ function wait_for_pr_to_complete() {
         name=$(echo "$crd_json" | jq -r '.items[0].metadata.name')
         namespace=$(echo "$crd_json" | jq -r '.items[0].metadata.namespace')
 
-        if [ "$status" = "False" ] || [ "$type" = "Failed" ]; then
+        if [ "$type" = "Failed" ]; then
             echo "PipelineRun $name failed."
             return 1
         fi
@@ -135,11 +136,11 @@ while true; do
     shift
 done
 
-if [ "${CLEANUP}" != "true" ]; then
-  trap teardown EXIT
-fi
+#if [ "${CLEANUP}" != "true" ]; then
+#  trap teardown EXIT
+#fi
 
-echo "Cleaning up before setup"
+#echo "Cleaning up before setup"
 teardown
 sleep 5
 

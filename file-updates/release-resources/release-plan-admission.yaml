@@ -8,6 +8,19 @@ metadata:
 spec:
   applications:
     - fileupdatestest
+  origin: dev-release-team-tenant
+  pipeline:
+    pipelineRef:
+      params:
+        - name: url
+          value: https://github.com/redhat-appstudio/release-service-catalog.git
+        - name: revision
+          value: production
+        - name: pathInRepo
+          value: pipelines/rh-push-to-external-registry/push-to-external-registry.yaml
+      resolver: "git"
+    serviceAccountName: release-service-account
+  policy: file-updates-test-policy
   data:
     fileUpdates:
       - paths:
@@ -27,15 +40,4 @@ spec:
       components:
         - name: fileupdatestest-component
           repository: quay.io/hacbs-release-tests/fileupdatestest-component
-  origin: dev-release-team-tenant
-  pipelineRef:
-    params:
-      - name: url
-        value: https://github.com/redhat-appstudio/release-service-catalog.git
-      - name: revision
-        value: main
-      - name: pathInRepo
-        value: pipelines/push-to-external-registry/push-to-external-registry.yaml
-    resolver: "git"
-  policy: file-updates-test-policy
-  serviceAccount: release-service-account
+

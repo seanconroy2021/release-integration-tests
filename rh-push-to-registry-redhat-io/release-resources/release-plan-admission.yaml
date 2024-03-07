@@ -9,17 +9,18 @@ spec:
   applications:
     - rh-push-to-registry-redhat-iotest
   origin: dev-release-team-tenant
-  pipelineRef:
-    params:
-      - name: url
-        value: https://github.com/redhat-appstudio/release-service-catalog.git
-      - name: revision
-        value: main
-      - name: pathInRepo
-        value: pipelines/rh-push-to-registry-redhat-io/rh-push-to-registry-redhat-io.yaml
-    resolver: "git"
+  pipeline:
+    pipelineRef:
+      params:
+        - name: url
+          value: https://github.com/theflockers/release-service-catalog.git
+        - name: revision
+          value:  release_1
+        - name: pathInRepo
+          value: pipelines/rh-push-to-external-registry/rh-push-to-external-registry.yaml
+      resolver: "git"
+    serviceAccountName: release-service-account
   policy: rh-push-to-registry-redhat-io-test-policy
-  serviceAccount: release-service-account
   data:
     pyxis:
       server: stage
@@ -29,4 +30,4 @@ spec:
     mapping:
       components:
         - name: rh-push-to-registry-redhat-iotest-component
-          repository: quay.io/hacbs-release-tests/rh-push-to-registry-redhat-iotest-component
+          repository: quay.io/lmendes/push-to-external-registry

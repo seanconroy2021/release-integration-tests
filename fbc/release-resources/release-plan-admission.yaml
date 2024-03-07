@@ -1,3 +1,4 @@
+---
 apiVersion: appstudio.redhat.com/v1alpha1
 kind: ReleasePlanAdmission
 metadata:
@@ -7,17 +8,18 @@ spec:
   applications:
     - e2e-fbc-application
   origin: dev-release-team-tenant
-  pipelineRef:
-    params:
-      - name: url
-        value: https://github.com/theflockers/release-service-catalog.git
-      - name: revision
-        value: rhtaprel_651
-      - name: pathInRepo
-        value: pipelines/fbc-release/fbc-release.yaml
-    resolver: "git"
+  pipeline:
+    pipelineRef:
+      params:
+        - name: url
+          value: https://github.com/redhat-appstudio/release-service-catalog.git
+        - name: revision
+          value: development 
+        - name: pathInRepo
+          value: pipelines/fbc-release/fbc-release.yaml
+      resolver: "git"
+    serviceAccountName: release-service-account
   policy: fbc-policy
-  serviceAccount: release-service-account
   data:
     fbc:
       fromIndex: 'quay.io/scoheb/fbc-index-testing:latest'
@@ -26,6 +28,11 @@ spec:
       requestUpdateTimeout: 420
       buildTimeoutSeconds: 480
       publishingCredentials: lmendes-quayio-credentials
+      hotfix: "true"
+      issueId: "abcd"
+      #preGA: "true"
+      productName: "hypershift"
+      productVersion: "0001-beta"
     sign:
       configMapName: hacbs-signing-pipeline-lmendes-config
       request: hacbs-signing-pipeline

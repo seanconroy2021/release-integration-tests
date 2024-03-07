@@ -4,9 +4,7 @@ metadata:
   labels:
     release.appstudio.openshift.io/auto-release: 'true'
     release.appstudio.openshift.io/standing-attribution: 'true'
-  name: e2e-fbc-releaseplan
-  namespace: dev-release-team-tenant
+  name: rhtap-service-push-rp
 spec:
-  application: e2e-fbc-application
+  application: rhtap-service-push-app
   target: managed-release-team-tenant
-  releaseGracePeriodDays: 5

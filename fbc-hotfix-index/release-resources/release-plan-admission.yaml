@@ -1,0 +1,32 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleasePlanAdmission
+metadata:
+  name: e2e-fbc-stage-index-releaseplanadmission
+  namespace: managed-release-team-tenant
+spec:
+  applications: 
+    - e2e-fbc-stage-index-application
+  origin: dev-release-team-tenant
+  policy: e2e-fbc-stage-index-policy
+  pipeline:
+    serviceAccountName: release-service-account
+    pipelineRef:
+      resolver: "git"
+      params:
+        - name: url
+          value: https://github.com/theflockers/release-service-catalog.git
+        - name: revision
+          value: release_948
+        - name: pathInRepo
+          value: pipelines/fbc-release/fbc-release.yaml
+  data:
+    fbc:
+      fromIndex: 'registry-proxy.engineering.redhat.com/rh-osbs/iib-pub-pending:v4.12'
+      targetIndex: 'quay.io/lmendes/sample-fbc-catalog:latest'
+      binaryImage: 'registry.redhat.io/openshift4/ose-operator-registry:v4.12'
+      hotfix: true
+      issueId: bz123456
+      allowedPackages: ['example-operator']
+      requestUpdateTimeout: 1500
+      buildTimeoutSeconds: 1500
+      publishingCredentials: 'fbc-publishing-credentials'

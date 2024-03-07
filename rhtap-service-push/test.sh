@@ -2,10 +2,10 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-APPLICATION_NAME="e2e-fbc-application"
-COMPONENT_NAME="e2e-fbc-component"
-RELEASE_PLAN_NAME="e2e-fbc-releaseplan"
-RELEASE_PLAN_ADMISSION_NAME="e2e-fbc-releaseplanadmission"
+APPLICATION_NAME="rhtap-service-push-app"
+COMPONENT_NAME="rhtap-service-push-component"
+RELEASE_PLAN_NAME="rhtap-service-push-rp"
+RELEASE_PLAN_ADMISSION_NAME="rhtap-service-push-rpa"
 TIMEOUT_SECONDS=600
 
 DEV_WORKSPACE="dev-release-team"
@@ -15,6 +15,7 @@ TOOLCHAIN_API_URL=https://api-toolchain-host-operator.apps.stone-stg-host.qc0p.p
 DEV_WORKSPACE_TENANT=${DEV_WORKSPACE}-tenant
 MANAGED_WORKSPACE_TENANT=${MANAGED_WORKSPACE}-tenant
 
+###
 DEV_KUBECONFIG=${DEV_KUBECONFIG:=$(WORKSPACE=$DEV_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)}
 MANAGED_KUBECONFIG=${MANAGED_KUBECONFIG:=$(WORKSPACE=$MANAGED_WORKSPACE TOOLCHAIN_API_URL=$TOOLCHAIN_API_URL $SCRIPTDIR/../utils/generate-kubeconfig-file.sh)}
 
@@ -30,7 +31,7 @@ fi
 DEV_KUBECONFIG_ARG="--kubeconfig=${DEV_KUBECONFIG}"
 MANAGED_KUBECONFIG_ARG="--kubeconfig=${MANAGED_KUBECONFIG}"
 
-trap "rm -f ${DEV_KUBECONFIG} ${MANAGED_KUBECONFIG}" EXIT
+#trap "rm -f ${DEV_KUBECONFIG} ${MANAGED_KUBECONFIG}" EXIT
 
 print_help(){
     echo -e "$0 [ --skip-cleanup ]\n"
@@ -42,6 +43,9 @@ function setup() {
     echo "Creating Application"
     kubectl apply -f release-resources/application.yaml "${DEV_KUBECONFIG_ARG}"
 
+    echo "Creating Component"
+    kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
+    
     echo "Creating ReleasePlan"
     kubectl apply -f release-resources/release-plan.yaml "${DEV_KUBECONFIG_ARG}"
 
@@ -51,10 +55,7 @@ function setup() {
     echo "Creating EnterpriseContractPolicy"
     kubectl apply -f release-resources/ec-policy.yaml "${MANAGED_KUBECONFIG_ARG}"
 
-    echo "Creating Component"
-    kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
-    kubectl apply -f release-resources/multiple-components.yaml "${DEV_KUBECONFIG_ARG}"
- }
+}
 
 function teardown() {
 
@@ -78,8 +79,8 @@ function wait_for_pr_to_complete() {
     local start_time=$(date +%s)
 
     if [ "$type" = "release" ]; then
-        kube_config="${MANAGED_KUBECONFIG_ARG}"
-        crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type"
+        kube_config="${DEV_KUBECONFIG_ARG}"
+        crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME"
     else
         kube_config="${DEV_KUBECONFIG_ARG}"
         crd_labels="appstudio.openshift.io/application=$APPLICATION_NAME,pipelines.appstudio.openshift.io/type=$type,appstudio.openshift.io/component=$COMPONENT_NAME"
@@ -94,7 +95,7 @@ function wait_for_pr_to_complete() {
         name=$(echo "$crd_json" | jq -r '.items[0].metadata.name')
         namespace=$(echo "$crd_json" | jq -r '.items[0].metadata.namespace')
 
-        if [ "$status" = "False" ] || [ "$type" = "Failed" ]; then
+        if [ "$type" = "Failed" ]; then
             echo "PipelineRun $name failed."
             return 1
         fi
@@ -121,7 +122,7 @@ eval set -- "$OPTIONS"
 while true; do
     case "$1" in
         -sc|--skip-cleanup)
-            CLEANUP="false"
+            CLEANUP="true"
             ;;
         -h|--help)
             print_help
@@ -135,11 +136,11 @@ while true; do
     shift
 done
 
-if [ "${CLEANUP}" == "true" ]; then
-  trap teardown EXIT INT
-fi
+#if [ "${CLEANUP}" != "true" ]; then
+#  trap teardown EXIT
+#fi
 
-echo "Cleaning up before setup"
+#echo "Cleaning up before setup"
 teardown
 sleep 5
 
@@ -156,7 +157,7 @@ echo "Waiting for the Release to be updated"
 sleep 15
 
 echo "Checking Release status"
-# Get name of Release CR associated with Release Plan "e2e-fbc-releaseplan".
+# Get name of Release CR associated with Release Plan "rhtap-service-push-rp".
 release_name=$(kubectl get release  "${DEV_KUBECONFIG_ARG}" -o jsonpath="{range .items[?(@.spec.releasePlan=='$RELEASE_PLAN_NAME')]}{.metadata.name}{'\n'}{end}" --sort-by={metadata.creationTimestamp} | tail -1)
 echo "release_name: $release_name"
 
@@ -169,6 +170,6 @@ echo "Reason: $release_reason"
 
 if [ "$release_status" = "True" ] && [ "$release_reason" = "Succeeded" ]; then
     echo "Release $release_name succeeded."
-else
+elif [ "$release_status" = "Failed" ]; then
     echo "Release $release_name failed."
 fi

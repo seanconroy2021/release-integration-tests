@@ -2,10 +2,10 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-APPLICATION_NAME="e2e-fbc-application"
-COMPONENT_NAME="e2e-fbc-component"
-RELEASE_PLAN_NAME="e2e-fbc-releaseplan"
-RELEASE_PLAN_ADMISSION_NAME="e2e-fbc-releaseplanadmission"
+APPLICATION_NAME="e2e-fbc-stage-index-application"
+COMPONENT_NAME="e2e-fbc-stage-index-component"
+RELEASE_PLAN_NAME="e2e-fbc-stage-index-releaseplan"
+RELEASE_PLAN_ADMISSION_NAME="e2e-fbc-stage-index-releaseplanadmission"
 TIMEOUT_SECONDS=600
 
 DEV_WORKSPACE="dev-release-team"
@@ -42,6 +42,9 @@ function setup() {
     echo "Creating Application"
     kubectl apply -f release-resources/application.yaml "${DEV_KUBECONFIG_ARG}"
 
+    echo "Creating Component"
+    kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
+    
     echo "Creating ReleasePlan"
     kubectl apply -f release-resources/release-plan.yaml "${DEV_KUBECONFIG_ARG}"
 
@@ -51,10 +54,7 @@ function setup() {
     echo "Creating EnterpriseContractPolicy"
     kubectl apply -f release-resources/ec-policy.yaml "${MANAGED_KUBECONFIG_ARG}"
 
-    echo "Creating Component"
-    kubectl apply -f release-resources/component.yaml "${DEV_KUBECONFIG_ARG}"
-    kubectl apply -f release-resources/multiple-components.yaml "${DEV_KUBECONFIG_ARG}"
- }
+}
 
 function teardown() {
 
@@ -136,7 +136,7 @@ while true; do
 done
 
 if [ "${CLEANUP}" == "true" ]; then
-  trap teardown EXIT INT
+  trap teardown EXIT
 fi
 
 echo "Cleaning up before setup"
@@ -156,7 +156,7 @@ echo "Waiting for the Release to be updated"
 sleep 15
 
 echo "Checking Release status"
-# Get name of Release CR associated with Release Plan "e2e-fbc-releaseplan".
+# Get name of Release CR associated with Release Plan "e2e-fbc-stage-index-releaseplan".
 release_name=$(kubectl get release  "${DEV_KUBECONFIG_ARG}" -o jsonpath="{range .items[?(@.spec.releasePlan=='$RELEASE_PLAN_NAME')]}{.metadata.name}{'\n'}{end}" --sort-by={metadata.creationTimestamp} | tail -1)
 echo "release_name: $release_name"
 

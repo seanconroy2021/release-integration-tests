@@ -17,9 +17,9 @@ spec:
     git:
       context: ./
       devfileUrl: >-
-        https://raw.githubusercontent.com/scoheb/devfile-sample-python-basic/main/devfile.yaml
+        https://raw.githubusercontent.com/theflockers-stonesoup/devfile-sample-python-basic/main/devfile.yaml
       dockerfileUrl: >-
-        https://raw.githubusercontent.com/scoheb/devfile-sample-python-basic/main/docker/Dockerfile
-      url: 'https://github.com/scoheb/devfile-sample-python-basic'
+        https://raw.githubusercontent.com/theflockers-stonesoup/devfile-sample-python-basic/main/docker/Dockerfile
+      url: 'https://github.com/theflockers-stonesoup/devfile-sample-python-basic'
   targetPort: 8081
 

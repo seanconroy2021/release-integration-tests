@@ -1,0 +1,30 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleasePlan
+metadata:
+  labels:
+    release.appstudio.openshift.io/auto-release: 'true'
+    release.appstudio.openshift.io/standing-attribution: 'true'
+  name: tenant-pipeline-rp
+  namespace: dev-release-team-tenant
+spec:
+  application: tenant-pipeline
+  pipeline:
+    pipelineRef:
+      params:
+        - name: url
+          value: https://github.com/theflockers/test-pipeline.git
+        - name: revision
+          value: main
+        - name: pathInRepo
+          value: useful-pipeline.yaml
+      resolver: "git"
+    serviceAccountName: another-service-account
+    params:
+      - name: released_version
+        value: 1.0.1
+      - name: git_repo
+        value: https://gitlab.com/theflockers/mta-host-optimizer
+      - name: git_commit_id
+        value: 55e16e346a936cb5d0b840106e7367c5a9ad3491
+      - name: git_secret_name
+        value: sandbox-git-secret

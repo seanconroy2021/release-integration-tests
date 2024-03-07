@@ -4,9 +4,8 @@ metadata:
   labels:
     release.appstudio.openshift.io/auto-release: 'true'
     release.appstudio.openshift.io/standing-attribution: 'true'
-  name: e2e-fbc-releaseplan
+  name: e2e-fbc-stage-index-releaseplan
   namespace: dev-release-team-tenant
 spec:
-  application: e2e-fbc-application
+  application: e2e-fbc-stage-index-application
   target: managed-release-team-tenant
-  releaseGracePeriodDays: 5

@@ -16,14 +16,18 @@ print_help() {
 runtest() {
     testdir=$1
     username=$2
+    
+    if [ -z "$3" ]; then
+        sc="-sc"
+    fi
     echo -e "==== Running [ `echo $testdir |tr a-z A-Z` ] test ====\n"
     cd $testdir
-    sh test.sh -sc |while read line; do
+    sh test.sh $sc |while read line; do
         logger -t "run/$testdir" -s $username "$line"
     done
 }
 
-options=$(getopt -o lht:a:p:u: --long local,test:,address:,username:,password:,help -- "$@")
+options=$(getopt -o lsht:a:p:u: --long local,skip-clean,test:,address:,username:,password:,help -- "$@")
 eval set -- "$options"
 
 if (( $# < 2 )); then
@@ -57,6 +61,10 @@ while true; do
             shift
             print_help
             exit 0
+            ;;
+        -s|--skip-clean)
+            shift
+            SC="-sc"
             ;;
         "--")
             shift
@@ -103,4 +111,4 @@ if [ -n "$LOCAL" ]; then
     oc project managed-release-team-tenant --kubeconfig $MANAGED_KUBECONFIG
 fi
 
-runtest $TESTDIR $USERNAME
+runtest $TESTDIR $USERNAME $SC

@@ -1,0 +1,36 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/theflockers-stonesoup/devfile-sample-python-basic?rev=a173e9438acf0de420bce85809dfeaa7e296603d
+    build.appstudio.redhat.com/bundle: quay.io/redhat-appstudio-tekton-catalog/pipeline-docker-build:6b5e66e2a4f9c376e26f534a9d880bafc40a7003
+    build.appstudio.redhat.com/commit_sha: a173e9438acf0de420bce85809dfeaa7e296603d
+    build.appstudio.redhat.com/pipeline_name: docker-build
+  generateName: rh-push-to-registry-redhat-iotest-
+  generation: 1
+  labels:
+    appstudio.openshift.io/application: rh-push-to-registry-redhat-iotest
+    appstudio.openshift.io/build-pipelinerun: rh-push-to-registry-redhat-iotest-component-tfrn4
+    appstudio.openshift.io/component: rh-push-to-registry-redhat-iotest-component
+    test.appstudio.openshift.io/type: component
+  name: rh-push-to-registry-redhat-iotest-kxdhf
+  namespace: dev-release-team-tenant
+  ownerReferences:
+  - apiVersion: appstudio.redhat.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Application
+    name: rh-push-to-registry-redhat-iotest
+    uid: 95398625-51b7-47cf-898f-344b9fda97ae
+  uid: 72c03d6c-76d9-4ab4-8898-60171859a57f
+spec:
+  application: rh-push-to-registry-redhat-iotest
+  artifacts: {}
+  components:
+  - containerImage: quay.io/hacbs-release-tests/dev-release-team-tenant/rh-push-to-registry-redhat-iotest/rh-push-to-registry-redhat-iotest-component@sha256:73098964a8a172ea3577bc21fb1aae818ecc2015f0cc44744e1ceb92c65ac2ce
+    name: rh-push-to-registry-redhat-iotest-component
+    source:
+      git:
+        revision: a173e9438acf0de420bce85809dfeaa7e296603d
+        url: https://github.com/theflockers-stonesoup/devfile-sample-python-basic
+

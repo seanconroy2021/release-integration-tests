@@ -1,0 +1,7 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Application
+metadata:
+  name: tenant-pipeline
+spec:
+  description: AppStudio
+  displayName: AppStudio

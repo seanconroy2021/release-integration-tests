@@ -1,13 +1,13 @@
 ﻿apiVersion: appstudio.redhat.com/v1alpha1
 kind: Component
 metadata:
-  name: rh-push-to-registry-redhat-iotest-component
+  name: rhtap-service-push-component
   annotations:
     pipelinesascode: '1'
     image.redhat.com/generate: 'true'
 spec:
-  application: rh-push-to-registry-redhat-iotest
-  componentName: rh-push-to-registry-redhat-iotest-component
+  application: rhtap-service-push-app
+  componentName: rhtap-service-push-component
   replicas: 1
   resources:
     requests:
