@@ -29,7 +29,7 @@ spec:
       sed -i -e \
       's|\(https://github.com/redhat-appstudio/release-service/config/grafana/?ref=\)\(.*\)|\1{{ revision }}|' \
       -e 's//\1{{ revision }}/' components/monitoring/grafana/base/dashboards/release/kustomization.yaml
-    targetGHRepo: theflockers-stonesoup/infra-deployments
+    targetGHRepo: seanconroy2021/infra-deployments
     githubAppID: 880106
     githubAppInstallationID: 49762101
     pyxis:
