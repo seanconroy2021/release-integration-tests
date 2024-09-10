@@ -7,7 +7,7 @@ metadata:
   namespace: managed-release-team-tenant
 spec:
   applications:
-    - rhtap-service-push-app
+    - seanworld
   origin: dev-release-team-tenant
   pipeline:
     pipelineRef:

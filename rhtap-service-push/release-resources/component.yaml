@@ -6,7 +6,7 @@ metadata:
     pipelinesascode: '1'
     image.redhat.com/generate: 'true'
 spec:
-  application: rhtap-service-push-app
+  application: seanworld
   componentName: rhtap-service-push-component
   replicas: 1
   resources:

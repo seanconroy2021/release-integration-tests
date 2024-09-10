@@ -2,7 +2,7 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-APPLICATION_NAME="rhtap-service-push-app"
+APPLICATION_NAME="seanworld"
 COMPONENT_NAME="rhtap-service-push-component"
 RELEASE_PLAN_NAME="rhtap-service-push-rp"
 RELEASE_PLAN_ADMISSION_NAME="rhtap-service-push-rpa"

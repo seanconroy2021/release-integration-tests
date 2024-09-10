@@ -6,5 +6,5 @@ metadata:
     release.appstudio.openshift.io/standing-attribution: 'true'
   name: rhtap-service-push-rp
 spec:
-  application: rhtap-service-push-app
+  application: seanworld
   target: managed-release-team-tenant
